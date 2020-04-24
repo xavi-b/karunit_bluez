@@ -5,16 +5,14 @@ QT             += BluezQt core widgets dbus bluetooth
 TARGET          = karunit_bluez_plugin
 DESTDIR         = $$PWD/../karunit/app/plugins
 
-LIBS += -L$$PWD/../karunit/lib/
-LIBS += -L$$PWD/../karunit/app/plugins/
-
-LIBS += -lplugininterface
+LIBS += -L$$PWD/../karunit/plugininterface/ -lplugininterface
 INCLUDEPATH += $$PWD/../karunit/plugininterface
-DEPENDPATH += $$PWD/../karunit/plugininterface
 
-LIBS += -lcommon
+LIBS += -L$$PWD/../karunit/common/ -lcommon
 INCLUDEPATH += $$PWD/../karunit/common
-DEPENDPATH += $$PWD/../karunit/common
+
+LIBS += -L$$PWD/../karunit/third-party/xblog/ -lxblog
+INCLUDEPATH += $$PWD/../karunit/third-party/xblog/src
 
 SUBDIRS += \
     src/

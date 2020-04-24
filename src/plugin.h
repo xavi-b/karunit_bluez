@@ -24,10 +24,9 @@ public:
     virtual QString name() const override;
     virtual QString id() const override;
     virtual KU::PLUGIN::PluginVersion version() const override;
-    virtual QSet<KU::PLUGIN::PluginInfo> dependencies() const override;
     virtual QString license() const override;
     virtual QIcon icon() const override;
-    virtual bool initialize(QSet<PluginInterface*> const& plugins) override;
+    virtual bool initialize() override;
     virtual bool stop() override;
 
     virtual QWidget* createWidget() override;

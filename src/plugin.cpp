@@ -21,11 +21,6 @@ KU::PLUGIN::PluginVersion KU_Bluez_Plugin::version() const
     return { 1, 0, 0 };
 }
 
-QSet<KU::PLUGIN::PluginInfo> KU_Bluez_Plugin::dependencies() const
-{
-    return QSet<KU::PLUGIN::PluginInfo>();
-}
-
 QString KU_Bluez_Plugin::license() const
 {
     return "LGPL";
@@ -36,7 +31,7 @@ QIcon KU_Bluez_Plugin::icon() const
     return QIcon();
 }
 
-bool KU_Bluez_Plugin::initialize(const QSet<KU::PLUGIN::PluginInterface*>& plugins)
+bool KU_Bluez_Plugin::initialize()
 {
     this->bluetoothManager = new BluetoothManager;
     QObject::connect(this->bluetoothManager, &BluetoothManager::debugLog,
