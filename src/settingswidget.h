@@ -5,7 +5,7 @@
 #include <QListWidget>
 #include <QVBoxLayout>
 #include <QDebug>
-#include "bluetoothinterface.h"
+#include "mediadefines.h"
 
 class SettingsWidget : public QWidget
 {
@@ -16,14 +16,14 @@ private:
 public:
     SettingsWidget(QWidget* parent = nullptr);
 
-    void deviceConnected(KU::PLUGIN::DeviceInfo const& info);
-    void deviceDisconnected(KU::PLUGIN::DeviceInfo const& info);
+    void deviceConnected(DeviceInfo const& info);
+    void deviceDisconnected(DeviceInfo const& info);
 
-    void setDevices(QList<KU::PLUGIN::DeviceInfo> const& list);
+    void setDevices(QList<DeviceInfo> const& list);
 
 signals:
-    void connectToDevice(KU::PLUGIN::DeviceInfo const& info);
-    void disconnectFromDevice(KU::PLUGIN::DeviceInfo const& info);
+    void connectToDevice(DeviceInfo const& info);
+    void disconnectFromDevice(DeviceInfo const& info);
     void log(QString const& log);
 };
 

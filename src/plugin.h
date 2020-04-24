@@ -7,16 +7,14 @@
 #include <QLabel>
 #include <QDateTime>
 #include "plugininterface.h"
-#include "bluetoothinterface.h"
 #include "settings.h"
 #include "settingswidget.h"
 #include "bluetoothmanager.h"
 
-class KU_Bluez_Plugin : public QObject, public KU::PLUGIN::PluginInterface, public KU::PLUGIN::BluetoothPluginInterface
+class KU_Bluez_Plugin : public QObject, public KU::PLUGIN::PluginInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "xavi-b.karunit.PluginInterface")
-    Q_INTERFACES(KU::PLUGIN::BluetoothPluginInterface)
     Q_INTERFACES(KU::PLUGIN::PluginInterface)
 
 public:
@@ -37,9 +35,6 @@ public:
 private:
     SettingsWidget* settingsWidget = nullptr;
     BluetoothManager* bluetoothManager= nullptr;
-
-public:
-    virtual KU::PLUGIN::BluetoothConnector* getBluetoothConnector() override;
 };
 
 

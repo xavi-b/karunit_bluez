@@ -9,7 +9,7 @@ void BluetoothManager::setup()
     {
         if (job->error())
         {
-            emit debugLog("Error initializing manager: " + job->errorText());
+            emitLogSignal("Error initializing manager: " + job->errorText());
             return;
         }
 
@@ -18,38 +18,38 @@ void BluetoothManager::setup()
 
         if(call->value() != 1 && call->value() != 2)
         {
-            emit debugLog("Error starting service: " + QString::number(call->value().toUInt()));
+            emitLogSignal("Error starting service: " + QString::number(call->value().toUInt()));
             return;
         }
 
         connect(job->manager(), &BluezQt::Manager::usableAdapterChanged, this, [=](BluezQt::AdapterPtr adapter)
         {
-            emit debugLog("usableAdapterChanged: " + adapter->name());
+            emitLogSignal("usableAdapterChanged: " + adapter->name());
             startAdapter(adapter);
         });
 
-        emit debugLog("Adapters count: " + QString::number(job->manager()->adapters().size()));
+        emitLogSignal("Adapters count: " + QString::number(job->manager()->adapters().size()));
         for(auto& adapter : job->manager()->adapters())
         {
-            emit debugLog("Adapter found: " + adapter->name());
+            emitLogSignal("Adapter found: " + adapter->name());
             startAdapter(adapter);
         }
 
         if (!job->manager()->usableAdapter())
         {
-            emit debugLog("No usable adapter");
+            emitLogSignal(XB::Log("No usable adapter"));
             return;
         }
 
-        QList<KU::PLUGIN::DeviceInfo> list;
+        QList<DeviceInfo> list;
         for(auto& d : this->manager->devices())
             list.append(BluezQtHostInfo(d.data()));
-        emit knownDevices(list);
+        emitKnownDevices(list);
 
         NoInputNoOutputAgent* agent = new NoInputNoOutputAgent();
         connect(agent, &NoInputNoOutputAgent::serviceAuthorized, this, [=](BluezQt::DevicePtr device, const QString &uuid, bool allowed)
         {
-            emit debugLog((allowed ? "Accepted" : "Rejected") + QString(" service: " + uuid + " from " + device->friendlyName()));
+            emitLogSignal((allowed ? "Accepted" : "Rejected") + QString(" service: " + uuid + " from " + device->friendlyName()));
         });
 
         job->manager()->registerAgent(agent);
@@ -66,39 +66,49 @@ void BluetoothManager::startAdapter(BluezQt::AdapterPtr adapter)
 
     for(auto& device : adapter->devices())
     {
-        emit debugLog("Device found: " + device->friendlyName() + " " + (device->isConnected() ? "Connected" : "Disconnected"));
+        emitLogSignal("Device found: " + device->friendlyName() + " " + (device->isConnected() ? "Connected" : "Disconnected"));
+        this->setupDevice(device);
+    }
 
-        if(device->isConnected())
-        {
-            connectDevice(device);
-            emit deviceConnected(BluezQtHostInfo(device.data()));
-        }
+    connect(adapter.data(), &BluezQt::Adapter::deviceAdded, this, [=](BluezQt::DevicePtr device)
+    {
+        emitLogSignal("Device added: " + device->friendlyName() + " " + (device->isConnected() ? "Connected" : "Disconnected"));
+        this->setupDevice(device);
+    });
+}
 
-        connect(device.data(), &BluezQt::Device::connectedChanged, this, [=](bool connected)
+void BluetoothManager::setupDevice(BluezQt::DevicePtr device)
+{
+    if(device->isConnected())
+    {
+        connectDevice(device);
+        emitDeviceConnected(BluezQtHostInfo(device.data()));
+    }
+
+    connect(device.data(), &BluezQt::Device::connectedChanged, this, [=](bool connected)
+    {
+        BluezQt::Device* device = qobject_cast<BluezQt::Device*>(sender());
+        if(device != nullptr)
         {
-            BluezQt::Device* device = qobject_cast<BluezQt::Device*>(sender());
-            if(device != nullptr)
+            emitLogSignal("Device connected: " + device->friendlyName() + " " + (connected ? "Connected" : "Disconnected"));
+            if(connected)
             {
-                emit debugLog("Device connected: " + device->friendlyName() + " " + (connected ? "Connected" : "Disconnected"));
-                if(connected)
-                {
-                    connectDevice(BluezQt::DevicePtr(device));
-                    emit deviceConnected(BluezQtHostInfo(device));
-                }
-                else
-                {
-                    if(this->device->address() == device->address())
-                        this->device = nullptr;
-                    emit deviceDisconnected(BluezQtHostInfo(device));
-                }
+                connectDevice(BluezQt::DevicePtr(device));
+                emitDeviceConnected(BluezQtHostInfo(device));
             }
             else
             {
-                emit debugLog("Device connected: UNKNOWN");
-                this->device = nullptr;
+                if(this->device->address() == device->address())
+                    this->device = nullptr;
+                emitDeviceDisconnected(BluezQtHostInfo(device));
             }
-        });
-    }
+        }
+        else
+        {
+            emitLogSignal(XB::Log("Device connected: UNKNOWN"));
+            this->device = nullptr;
+        }
+    });
 }
 
 void BluetoothManager::connectDevice(BluezQt::DevicePtr device)
@@ -115,75 +125,52 @@ void BluetoothManager::connectMediaPlayer(BluezQt::MediaPlayerPtr mediaPlayer)
 {
     if(mediaPlayer != nullptr)
     {
-        emit trackChanged(BluezQtMediaTrack(mediaPlayer->track()));
+        emitTrackChanged(BluezQtMediaTrack(mediaPlayer->track()));
         connect(mediaPlayer.data(), &BluezQt::MediaPlayer::trackChanged, this, [=](BluezQt::MediaPlayerTrack track)
         {
-            emit trackChanged(BluezQtMediaTrack(track));
+            emitTrackChanged(BluezQtMediaTrack(track));
         });
 
-        emit nameChanged(mediaPlayer->name());
+        emitNameChanged(mediaPlayer->name());
         connect(mediaPlayer.data(), &BluezQt::MediaPlayer::nameChanged, this, [=](QString const& name)
         {
-            emit nameChanged(name);
+            emitNameChanged(name);
         });
 
-        emit positionChanged(mediaPlayer->position());
+        emitPositionChanged(mediaPlayer->position());
         connect(mediaPlayer.data(), &BluezQt::MediaPlayer::positionChanged, this, [=](quint32 position)
         {
-            emit positionChanged(position);
+            emitPositionChanged(position);
         });
 
-        emit repeatChanged(static_cast<KU::PLUGIN::MediaRepeat>(mediaPlayer->repeat()));
+        emitRepeatChanged(static_cast<MediaRepeat>(mediaPlayer->repeat()));
         connect(mediaPlayer.data(), &BluezQt::MediaPlayer::repeatChanged, this, [=](BluezQt::MediaPlayer::Repeat repeat)
         {
-            emit repeatChanged(static_cast<KU::PLUGIN::MediaRepeat>(repeat));
+            emitRepeatChanged(static_cast<MediaRepeat>(repeat));
         });
 
-        emit shuffleChanged(static_cast<KU::PLUGIN::MediaShuffle>(mediaPlayer->shuffle()));
+        emitShuffleChanged(static_cast<MediaShuffle>(mediaPlayer->shuffle()));
         connect(mediaPlayer.data(), &BluezQt::MediaPlayer::shuffleChanged, this, [=](BluezQt::MediaPlayer::Shuffle shuffle)
         {
-            emit shuffleChanged(static_cast<KU::PLUGIN::MediaShuffle>(shuffle));
+            emitShuffleChanged(static_cast<MediaShuffle>(shuffle));
         });
 
-        emit statusChanged(static_cast<KU::PLUGIN::MediaStatus>(mediaPlayer->status()));
+        emitStatusChanged(static_cast<MediaStatus>(mediaPlayer->status()));
         connect(mediaPlayer.data(), &BluezQt::MediaPlayer::statusChanged, this, [=](BluezQt::MediaPlayer::Status status)
         {
-            emit statusChanged(static_cast<KU::PLUGIN::MediaStatus>(status));
+            emitStatusChanged(static_cast<MediaStatus>(status));
         });
     }
 }
 
 BluetoothManager::BluetoothManager(QObject* parent)
-    : KU::PLUGIN::BluetoothConnector(parent)
+    : KU::PLUGIN::PluginConnector(parent)
 {
 
 }
 
-void BluetoothManager::mediaPrevious()
-{
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->previous();
-}
 
-void BluetoothManager::mediaNext()
-{
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->next();
-}
-
-void BluetoothManager::mediaPlay()
-{
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->play();
-}
-
-void BluetoothManager::mediaPause()
-{
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->pause();
-}
-
-void BluetoothManager::connectToDevice(KU::PLUGIN::DeviceInfo const& info)
+void BluetoothManager::connectToDevice(DeviceInfo const& info)
 {
     for(auto& d : this->manager->usableAdapter()->devices())
     {
@@ -195,7 +182,7 @@ void BluetoothManager::connectToDevice(KU::PLUGIN::DeviceInfo const& info)
     }
 }
 
-void BluetoothManager::disconnectFromDevice(const KU::PLUGIN::DeviceInfo& info)
+void BluetoothManager::disconnectFromDevice(DeviceInfo const& info)
 {
     for(auto& d : this->manager->usableAdapter()->devices())
     {
@@ -205,4 +192,103 @@ void BluetoothManager::disconnectFromDevice(const KU::PLUGIN::DeviceInfo& info)
             break;
         }
     }
+}
+
+void BluetoothManager::pluginSlot(QString const& signal, QVariantMap const& data)
+{
+    if(signal == "mediaPrevious")
+    {
+        this->mediaPreviousSlot();
+        return;
+    }
+
+    if(signal == "mediaNext")
+    {
+        this->mediaNextSlot();
+        return;
+    }
+
+    if(signal == "mediaPlay")
+    {
+        this->mediaPlaySlot();
+        return;
+    }
+
+    if(signal == "mediaPause")
+    {
+        this->mediaPauseSlot();
+        return;
+    }
+}
+
+void BluetoothManager::mediaPreviousSlot()
+{
+    if(this->device != nullptr)
+        this->device->mediaPlayer()->previous();
+}
+
+void BluetoothManager::mediaNextSlot()
+{
+    if(this->device != nullptr)
+        this->device->mediaPlayer()->next();
+}
+
+void BluetoothManager::mediaPlaySlot()
+{
+    if(this->device != nullptr)
+        this->device->mediaPlayer()->play();
+}
+
+void BluetoothManager::mediaPauseSlot()
+{
+    if(this->device != nullptr)
+        this->device->mediaPlayer()->pause();
+}
+
+void BluetoothManager::emitKnownDevices(const QList<DeviceInfo>& devices)
+{
+
+    emit knownDevices(devices);
+}
+
+void BluetoothManager::emitDeviceConnected(const DeviceInfo& info)
+{
+
+    emit deviceConnected(info);
+}
+
+void BluetoothManager::emitDeviceDisconnected(const DeviceInfo& info)
+{
+
+    emit deviceDisconnected(info);
+}
+
+void BluetoothManager::emitTrackChanged(const MediaTrack& track)
+{
+
+}
+
+void BluetoothManager::emitNameChanged(const QString& name)
+{
+
+}
+
+void BluetoothManager::emitPositionChanged(quint32 position)
+{
+
+}
+
+void BluetoothManager::emitRepeatChanged(MediaRepeat repeat)
+{
+
+}
+
+void BluetoothManager::emitShuffleChanged(MediaShuffle shuffle)
+{
+
+}
+
+void BluetoothManager::emitStatusChanged(MediaStatus status)
+{
+
 }

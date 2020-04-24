@@ -34,8 +34,12 @@ QIcon KU_Bluez_Plugin::icon() const
 bool KU_Bluez_Plugin::initialize()
 {
     this->bluetoothManager = new BluetoothManager;
-    QObject::connect(this->bluetoothManager, &BluetoothManager::debugLog,
+    this->setPluginConnector(this->bluetoothManager);
+
+    this->settingsWidget = new SettingsWidget;
+    QObject::connect(this->settingsWidget, &SettingsWidget::log,
                      this->getPluginConnector(), &KU::PLUGIN::PluginConnector::log);
+
     QObject::connect(this->bluetoothManager, &BluetoothManager::knownDevices,
                      this->settingsWidget, &SettingsWidget::setDevices);
     QObject::connect(this->bluetoothManager, &BluetoothManager::deviceConnected,
@@ -46,7 +50,9 @@ bool KU_Bluez_Plugin::initialize()
                      this->bluetoothManager, &BluetoothManager::connectToDevice);
     QObject::connect(this->settingsWidget, &SettingsWidget::disconnectFromDevice,
                      this->bluetoothManager, &BluetoothManager::disconnectFromDevice);
+
     this->bluetoothManager->setup();
+
     return true;
 }
 
@@ -62,8 +68,6 @@ QWidget* KU_Bluez_Plugin::createWidget()
 
 QWidget* KU_Bluez_Plugin::createSettingsWidget()
 {
-    this->settingsWidget = new SettingsWidget;
-    connect(this->settingsWidget, &SettingsWidget::log, this->getPluginConnector(), &KU::PLUGIN::PluginConnector::log);
     return this->settingsWidget;
 }
 
@@ -75,9 +79,4 @@ bool KU_Bluez_Plugin::loadSettings()
 bool KU_Bluez_Plugin::saveSettings() const
 {
     return KU::Settings::instance()->status() == QSettings::NoError;
-}
-
-KU::PLUGIN::BluetoothConnector* KU_Bluez_Plugin::getBluetoothConnector()
-{
-    return this->bluetoothManager;
 }

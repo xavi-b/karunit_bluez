@@ -18,7 +18,7 @@ SettingsWidget::SettingsWidget(QWidget* parent)
     this->setLayout(layout);
 }
 
-void SettingsWidget::deviceConnected(KU::PLUGIN::DeviceInfo const& info)
+void SettingsWidget::deviceConnected(DeviceInfo const& info)
 {
     emit log("deviceConnected " + info.name + " " + info.address);
     auto items = this->devicesListWidget->findItems(info.name, Qt::MatchExactly);
@@ -46,7 +46,7 @@ void SettingsWidget::deviceConnected(KU::PLUGIN::DeviceInfo const& info)
     }
 }
 
-void SettingsWidget::deviceDisconnected(KU::PLUGIN::DeviceInfo const& info)
+void SettingsWidget::deviceDisconnected(DeviceInfo const& info)
 {
     emit log("deviceDisconnected " + info.name + " " + info.address);
     auto items = this->devicesListWidget->findItems(info.name, Qt::MatchExactly);
@@ -74,7 +74,7 @@ void SettingsWidget::deviceDisconnected(KU::PLUGIN::DeviceInfo const& info)
     }
 }
 
-void SettingsWidget::setDevices(const QList<KU::PLUGIN::DeviceInfo>& list)
+void SettingsWidget::setDevices(const QList<DeviceInfo>& list)
 {
     for(auto& d : list)
     {

@@ -1,5 +1,6 @@
 HEADERS += \
     $$PWD/bluetoothmanager.h \
+    $$PWD/mediadefines.h \
     $$PWD/noinputnooutputagent.h \
     $$PWD/plugin.h \
     $$PWD/settingswidget.h

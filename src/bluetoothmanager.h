@@ -9,14 +9,15 @@
 #include <BluezQt/Device>
 #include <BluezQt/MediaPlayer>
 #include <BluezQt/PendingCall>
-#include "bluetoothinterface.h"
+#include "plugininterface.h"
 #include "noinputnooutputagent.h"
+#include "mediadefines.h"
 
-class BluezQtHostInfo : public KU::PLUGIN::DeviceInfo
+class BluezQtHostInfo : public DeviceInfo
 {
 public:
     BluezQtHostInfo(BluezQt::Device const* device)
-        : KU::PLUGIN::DeviceInfo()
+        : DeviceInfo()
     {
         this->address = device->address();
         this->name = device->name();
@@ -24,7 +25,7 @@ public:
     }
 };
 
-struct BluezQtMediaTrack : public KU::PLUGIN::MediaTrack
+struct BluezQtMediaTrack : public MediaTrack
 {
     BluezQtMediaTrack(BluezQt::MediaPlayerTrack const& other)
     {
@@ -38,7 +39,7 @@ struct BluezQtMediaTrack : public KU::PLUGIN::MediaTrack
     }
 };
 
-class BluetoothManager : public KU::PLUGIN::BluetoothConnector
+class BluetoothManager : public KU::PLUGIN::PluginConnector
 {
     Q_OBJECT
 private:
@@ -46,6 +47,7 @@ private:
     BluezQt::DevicePtr device = nullptr;
 
     void startAdapter(BluezQt::AdapterPtr adapter);
+    void setupDevice(BluezQt::DevicePtr device);
     void connectDevice(BluezQt::DevicePtr device);
     void connectMediaPlayer(BluezQt::MediaPlayerPtr mediaPlayer);
 
@@ -53,15 +55,30 @@ public:
     BluetoothManager(QObject* parent = nullptr);
     void setup();
 
-    virtual void mediaPrevious() override;
-    virtual void mediaNext() override;
-    virtual void mediaPlay() override;
-    virtual void mediaPause() override;
-    virtual void connectToDevice(KU::PLUGIN::DeviceInfo const& info) override;
-    virtual void disconnectFromDevice(KU::PLUGIN::DeviceInfo const& info) override;
+    void connectToDevice(DeviceInfo const& info);
+    void disconnectFromDevice(DeviceInfo const& info);
+
+    virtual void pluginSlot(QString const& signal, QVariantMap const& data) override;
+
+    void mediaPreviousSlot();
+    void mediaNextSlot();
+    void mediaPlaySlot();
+    void mediaPauseSlot();
+
+    void emitKnownDevices(QList<DeviceInfo> const& devices);
+    void emitDeviceConnected(DeviceInfo const& info);
+    void emitDeviceDisconnected(DeviceInfo const& info);
+    void emitTrackChanged(MediaTrack const& track);
+    void emitNameChanged(QString const& name);
+    void emitPositionChanged(quint32 position);
+    void emitRepeatChanged(MediaRepeat repeat);
+    void emitShuffleChanged(MediaShuffle shuffle);
+    void emitStatusChanged(MediaStatus status);
 
 signals:
-    void debugLog(QString const& log);
+    void knownDevices(QList<DeviceInfo> const& devices);
+    void deviceConnected(DeviceInfo const& info);
+    void deviceDisconnected(DeviceInfo const& info);
 };
 
 #endif // BLUETOOTHMANAGER_H
