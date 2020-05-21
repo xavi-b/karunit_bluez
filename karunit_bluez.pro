@@ -18,6 +18,3 @@ SUBDIRS += \
     src/
 
 include(src/src.pri)
-
-RESOURCES += \
-    karunit_bluez.qrc
