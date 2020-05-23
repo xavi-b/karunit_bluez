@@ -29,6 +29,7 @@ public:
 
     virtual QWidget* createWidget() override;
     virtual QWidget* createSettingsWidget() override;
+    virtual QWidget* createAboutWidget() override;
     virtual bool loadSettings() override;
     virtual bool saveSettings() const override;
 

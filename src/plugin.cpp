@@ -71,6 +71,11 @@ QWidget* KU_Bluez_Plugin::createSettingsWidget()
     return this->settingsWidget;
 }
 
+QWidget* KU_Bluez_Plugin::createAboutWidget()
+{
+    return nullptr;
+}
+
 bool KU_Bluez_Plugin::loadSettings()
 {
     return true;
