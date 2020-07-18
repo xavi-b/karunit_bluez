@@ -11,8 +11,8 @@ INCLUDEPATH += $$PWD/../karunit/plugininterface
 LIBS += -L$$PWD/../karunit/common/ -lcommon
 INCLUDEPATH += $$PWD/../karunit/common
 
-LIBS += -L$$PWD/../karunit/third-party/xblog/ -lxblog
-INCLUDEPATH += $$PWD/../karunit/third-party/xblog/src
+LIBS += -L$$PWD/../karunit/third-party/xblog/lib -lxblog
+INCLUDEPATH += $$PWD/../karunit/third-party/xblog/include
 
 SUBDIRS += \
     src/
