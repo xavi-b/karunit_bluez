@@ -28,6 +28,14 @@ void BluetoothManager::setup()
             startAdapter(adapter);
         });
 
+        NoInputNoOutputAgent* agent = new NoInputNoOutputAgent();
+        connect(agent, &NoInputNoOutputAgent::serviceAuthorized, this, [=](BluezQt::DevicePtr device, const QString &uuid, bool allowed)
+        {
+            emitLogSignal((allowed ? "Accepted" : "Rejected") + QString(" service: " + uuid + " from " + device->friendlyName()));
+        });
+        job->manager()->registerAgent(agent)->waitForFinished();
+        job->manager()->requestDefaultAgent(agent)->waitForFinished();
+
         emitLogSignal("Adapters count: " + QString::number(job->manager()->adapters().size()));
         for(auto& adapter : job->manager()->adapters())
         {
@@ -45,15 +53,6 @@ void BluetoothManager::setup()
         for(auto& d : this->manager->devices())
             list.append(BluezQtHostInfo(d.data()));
         emitKnownDevices(list);
-
-        NoInputNoOutputAgent* agent = new NoInputNoOutputAgent();
-        connect(agent, &NoInputNoOutputAgent::serviceAuthorized, this, [=](BluezQt::DevicePtr device, const QString &uuid, bool allowed)
-        {
-            emitLogSignal((allowed ? "Accepted" : "Rejected") + QString(" service: " + uuid + " from " + device->friendlyName()));
-        });
-
-        job->manager()->registerAgent(agent);
-        job->manager()->requestDefaultAgent(agent);
     });
 }
 
@@ -107,6 +106,14 @@ void BluetoothManager::setupDevice(BluezQt::DevicePtr device)
         {
             emitLogSignal(XB::Log("Device connected: UNKNOWN"));
             this->device = nullptr;
+        }
+    });
+
+    connect(device.data(), &BluezQt::Device::deviceChanged, this, [=](BluezQt::DevicePtr device)
+    {
+        if(device != nullptr)
+        {
+            emitLogSignal("Device changed: " + device->friendlyName());
         }
     });
 }
