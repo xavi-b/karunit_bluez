@@ -60,7 +60,7 @@ void BluetoothManager::setup()
 void BluetoothManager::startAdapter(BluezQt::AdapterPtr adapter)
 {
     adapter->setPowered(true)->waitForFinished();
-    adapter->setName("BluezQt")->waitForFinished();
+    adapter->setName("karunit")->waitForFinished();
     adapter->setPairable(true)->waitForFinished();
     adapter->setDiscoverable(true)->waitForFinished();
 
@@ -223,43 +223,84 @@ void BluetoothManager::pluginSlot(QString const& signal, QVariantMap const& data
 
 void BluetoothManager::mediaPreviousSlot()
 {
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->previous();
+    if(this->device == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaPreviousSlot() No device"));
+        return;
+    }
+
+    if(this->device->mediaPlayer() == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaPreviousSlot() No media player"));
+        return;
+    }
+
+    this->device->mediaPlayer()->previous();
 }
 
 void BluetoothManager::mediaNextSlot()
 {
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->next();
+    if(this->device == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaNextSlot() No device"));
+        return;
+    }
+
+    if(this->device->mediaPlayer() == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaNextSlot() No media player"));
+        return;
+    }
+
+    this->device->mediaPlayer()->next();
 }
 
 void BluetoothManager::mediaPlaySlot()
 {
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->play();
+    if(this->device == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaPlaySlot() No device"));
+        return;
+    }
+
+    if(this->device->mediaPlayer() == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaPlaySlot() No media player"));
+        return;
+    }
+
+    this->device->mediaPlayer()->play();
 }
 
 void BluetoothManager::mediaPauseSlot()
 {
-    if(this->device != nullptr)
-        this->device->mediaPlayer()->pause();
+    if(this->device == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaPauseSlot() No device"));
+        return;
+    }
+
+    if(this->device->mediaPlayer() == nullptr)
+    {
+        emitLogSignal(XB::Log("mediaPauseSlot() No media player"));
+        return;
+    }
+
+    this->device->mediaPlayer()->pause();
 }
 
 void BluetoothManager::emitKnownDevices(const QList<DeviceInfo>& devices)
 {
-
     emit knownDevices(devices);
 }
 
 void BluetoothManager::emitDeviceConnected(const DeviceInfo& info)
 {
-
     emit deviceConnected(info);
 }
 
 void BluetoothManager::emitDeviceDisconnected(const DeviceInfo& info)
 {
-
     emit deviceDisconnected(info);
 }
 
