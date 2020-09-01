@@ -64,6 +64,8 @@ void BluetoothManager::startAdapter(BluezQt::AdapterPtr adapter)
     adapter->setDiscoverable(true)->waitForFinished();
     adapter->setDiscoverableTimeout(0)->waitForFinished();
 
+    emitLogSignal("UUIDS: " + adapter->uuids().join(" + "));
+
     for(auto& device : adapter->devices())
     {
         emitLogSignal("Device found: " + device->friendlyName() + " " + (device->isConnected() ? "Connected" : "Disconnected"));
