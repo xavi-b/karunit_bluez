@@ -331,6 +331,7 @@ void BluetoothManager::emitTrackChanged(const MediaTrack& track)
     QVariantMap data;
     data["title"] = track.title;
     data["artist"] = track.artist;
+    data["duration"] = track.duration;
     this->pluginDataSignal("trackChanged", data);
 }
 
