@@ -198,7 +198,7 @@ void BluetoothManager::connectToDevice(DeviceInfo const& info)
     {
         if(d->address() == info.address)
         {
-            d->connectToDevice()->waitForFinished();
+            d->connectToDevice();
             break;
         }
     }
@@ -210,7 +210,7 @@ void BluetoothManager::disconnectFromDevice(DeviceInfo const& info)
     {
         if(d->address() == info.address)
         {
-            d->disconnectFromDevice()->waitForFinished();
+            d->disconnectFromDevice();
             break;
         }
     }
