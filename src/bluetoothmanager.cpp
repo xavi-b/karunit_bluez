@@ -98,15 +98,12 @@ void BluetoothManager::setupDevice(BluezQt::DevicePtr device)
             }
             else
             {
-                if(this->device->address() == device->address())
-                    this->device = nullptr;
                 emitDeviceDisconnected(BluezQtHostInfo(device));
             }
         }
         else
         {
             emitLogSignal(XB::Log("Device connected: UNKNOWN"));
-            this->device = nullptr;
         }
     });
 
