@@ -129,6 +129,7 @@ void BluetoothManager::setupDevice(BluezQt::DevicePtr device)
 void BluetoothManager::connectDevice(BluezQt::DevicePtr device)
 {
     this->device = device;
+    this->device->setTrusted(true)->waitForFinished();
     connectMediaPlayer(this->device->mediaPlayer());
     connect(this->device.data(), &BluezQt::Device::mediaPlayerChanged, this, [=](BluezQt::MediaPlayerPtr mediaPlayer)
     {
