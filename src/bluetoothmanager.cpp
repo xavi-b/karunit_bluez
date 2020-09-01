@@ -90,6 +90,7 @@ void BluetoothManager::setupDevice(BluezQt::DevicePtr device)
         if(device != nullptr)
         {
             emitLogSignal("Device connected: " + device->friendlyName() + " " + (connected ? "Connected" : "Disconnected"));
+            this->logDeviceInfos(device);
             if(connected)
             {
                 connectDevice(BluezQt::DevicePtr(device));
@@ -113,15 +114,7 @@ void BluetoothManager::setupDevice(BluezQt::DevicePtr device)
     {
         if(device != nullptr)
         {
-            emitLogSignal("Device changed: " + device->friendlyName() + " " + device->address());
-            emitLogSignal("Address:" + device->address());
-            emitLogSignal("Class:" + QString::number(device->deviceClass()));
-            emitLogSignal("Icon:" + device->icon());
-            emitLogSignal("Legacy Pairing:" + QString(device->hasLegacyPairing() ? "yes" : "no"));
-            emitLogSignal("Name:" + device->name());
-            emitLogSignal("Paired:" + QString(device->isPaired() ? "yes" : "no"));
-            emitLogSignal("Trusted:" + QString(device->isTrusted() ? "yes" : "no"));
-            emitLogSignal("Services:" + device->uuids().join(" + "));
+            this->logDeviceInfos(device.get());
         }
     });
 }
@@ -177,6 +170,19 @@ void BluetoothManager::connectMediaPlayer(BluezQt::MediaPlayerPtr mediaPlayer)
             emitStatusChanged(static_cast<MediaStatus>(status));
         });
     }
+}
+
+void BluetoothManager::logDeviceInfos(BluezQt::Device* device) const
+{
+    emitLogSignal("Device changed: " + device->friendlyName() + " " + device->address());
+    emitLogSignal("Address: " + device->address());
+    emitLogSignal("Class: " + QString::number(device->deviceClass()));
+    emitLogSignal("Icon: " + device->icon());
+    emitLogSignal("Legacy Pairing: " + QString(device->hasLegacyPairing() ? "yes" : "no"));
+    emitLogSignal("Name: " + device->name());
+    emitLogSignal("Paired: " + QString(device->isPaired() ? "yes" : "no"));
+    emitLogSignal("Trusted: " + QString(device->isTrusted() ? "yes" : "no"));
+    emitLogSignal("Services: " + device->uuids().join(" + "));
 }
 
 BluetoothManager::BluetoothManager(QObject* parent)

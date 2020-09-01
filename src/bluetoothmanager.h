@@ -51,6 +51,8 @@ private:
     void connectDevice(BluezQt::DevicePtr device);
     void connectMediaPlayer(BluezQt::MediaPlayerPtr mediaPlayer);
 
+    void logDeviceInfos(BluezQt::Device* device) const;
+
 public:
     BluetoothManager(QObject* parent = nullptr);
     void setup();
