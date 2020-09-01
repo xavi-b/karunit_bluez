@@ -62,6 +62,7 @@ void BluetoothManager::startAdapter(BluezQt::AdapterPtr adapter)
     adapter->setName("karunit")->waitForFinished();
     adapter->setPairable(true)->waitForFinished();
     adapter->setDiscoverable(true)->waitForFinished();
+    adapter->setDiscoverableTimeout(0)->waitForFinished();
 
     for(auto& device : adapter->devices())
     {
@@ -195,7 +196,7 @@ void BluetoothManager::connectToDevice(DeviceInfo const& info)
     {
         if(d->address() == info.address)
         {
-            d->connectToDevice();
+            d->connectToDevice()->waitForFinished();
             break;
         }
     }
@@ -207,7 +208,7 @@ void BluetoothManager::disconnectFromDevice(DeviceInfo const& info)
     {
         if(d->address() == info.address)
         {
-            d->disconnectFromDevice();
+            d->disconnectFromDevice()->waitForFinished();
             break;
         }
     }
