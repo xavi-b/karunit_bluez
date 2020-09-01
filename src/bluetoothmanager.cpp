@@ -328,7 +328,10 @@ void BluetoothManager::emitDeviceDisconnected(const DeviceInfo& info)
 
 void BluetoothManager::emitTrackChanged(const MediaTrack& track)
 {
-
+    QVariantMap data;
+    data["title"] = track.title;
+    data["artist"] = track.artist;
+    this->pluginDataSignal("trackChanged", data);
 }
 
 void BluetoothManager::emitNameChanged(const QString& name)
@@ -338,7 +341,9 @@ void BluetoothManager::emitNameChanged(const QString& name)
 
 void BluetoothManager::emitPositionChanged(quint32 position)
 {
-
+    QVariantMap data;
+    data["position"] = position;
+    this->pluginDataSignal("positionChanged", data);
 }
 
 void BluetoothManager::emitRepeatChanged(MediaRepeat repeat)
@@ -353,5 +358,7 @@ void BluetoothManager::emitShuffleChanged(MediaShuffle shuffle)
 
 void BluetoothManager::emitStatusChanged(MediaStatus status)
 {
-
+    QVariantMap data;
+    data["status"] = (int)status;
+    this->pluginDataSignal("statusChanged", data);
 }
