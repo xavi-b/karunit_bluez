@@ -1,5 +1,11 @@
 #include "plugin.h"
 
+KU_Bluez_Plugin::KU_Bluez_Plugin()
+{
+    this->bluetoothManager = new BluetoothManager;
+    this->setPluginConnector(this->bluetoothManager);
+}
+
 KU_Bluez_Plugin::~KU_Bluez_Plugin()
 {
     if(this->bluetoothManager != nullptr)
@@ -33,9 +39,6 @@ QIcon KU_Bluez_Plugin::icon() const
 
 bool KU_Bluez_Plugin::initialize()
 {
-    this->bluetoothManager = new BluetoothManager;
-    this->setPluginConnector(this->bluetoothManager);
-
     this->settingsWidget = new SettingsWidget;
     QObject::connect(this->settingsWidget, &SettingsWidget::log,
                      this->getPluginConnector(), &KU::PLUGIN::PluginConnector::log);

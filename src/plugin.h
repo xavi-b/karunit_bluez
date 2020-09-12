@@ -18,6 +18,7 @@ class KU_Bluez_Plugin : public QObject, public KU::PLUGIN::PluginInterface
     Q_INTERFACES(KU::PLUGIN::PluginInterface)
 
 public:
+    KU_Bluez_Plugin();
     virtual ~KU_Bluez_Plugin();
     virtual QString name() const override;
     virtual QString id() const override;
