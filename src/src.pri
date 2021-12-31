@@ -1,12 +1,10 @@
 HEADERS += \
-    $$PWD/bluetoothmanager.h \
+    $$PWD/bluezpluginconnector.h \
     $$PWD/mediadefines.h \
     $$PWD/noinputnooutputagent.h \
-    $$PWD/plugin.h \
-    $$PWD/settingswidget.h
+    $$PWD/plugin.h
 
 SOURCES += \
-    $$PWD/bluetoothmanager.cpp \
+    $$PWD/bluezpluginconnector.cpp \
     $$PWD/noinputnooutputagent.cpp \
-    $$PWD/plugin.cpp \
-    $$PWD/settingswidget.cpp
+    $$PWD/plugin.cpp

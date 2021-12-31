@@ -1,7 +1,7 @@
 TEMPLATE        = lib
 CONFIG         += plugin c++17
 DEFINES        += QT_DEPRECATED_WARNINGS
-QT             += BluezQt core widgets dbus bluetooth
+QT             += BluezQt core quick dbus bluetooth
 TARGET          = karunit_bluez_plugin
 DESTDIR         = $$PWD/../karunit/app/plugins
 
@@ -23,3 +23,6 @@ SUBDIRS += \
     src/
 
 include(src/src.pri)
+
+RESOURCES += \
+    karunit_bluez.qrc

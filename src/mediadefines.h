@@ -2,6 +2,7 @@
 #define MEDIADEFINES_H
 
 #include <QString>
+#include <QObject>
 
 struct MediaTrack
 {
@@ -41,9 +42,20 @@ enum MediaStatus
 
 struct DeviceInfo
 {
+    Q_GADGET
+    Q_PROPERTY(QString name MEMBER name CONSTANT)
+    Q_PROPERTY(QString address MEMBER address CONSTANT)
+    Q_PROPERTY(bool connected MEMBER connected CONSTANT)
+
+public:
     QString name;
     QString address;
-    bool connected = false;
+    bool    connected = false;
+
+    bool operator==(DeviceInfo const& other) const
+    {
+        return name == other.name && address == other.address && connected == other.connected;
+    }
 };
 
 #endif // MEDIADEFINES_H
