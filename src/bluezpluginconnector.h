@@ -76,13 +76,14 @@ signals:
 
 private:
     QList<DeviceInfo>   devices;
-    BluezQt::Manager*   manager = nullptr;
-    BluezQt::DevicePtr  device  = nullptr;
-    BluezQt::AdapterPtr adapter = nullptr;
+    BluezQt::Manager*   manager         = nullptr;
+    BluezQt::AdapterPtr adapter         = nullptr;
+    BluezQt::Device*    connectedDevice = nullptr;
 
     void startAdapter(BluezQt::AdapterPtr adapter);
     void setupDevice(BluezQt::DevicePtr device);
-    void connectDevice(BluezQt::DevicePtr device);
+    void connectDevice(BluezQt::Device* device);
+    void disconnectDevice(BluezQt::Device* device);
     void connectMediaPlayer(BluezQt::MediaPlayerPtr mediaPlayer);
 
     void logDeviceInfos(BluezQt::Device* device) const;

@@ -96,7 +96,7 @@ void KU_Bluez_PluginConnector::setupDevice(BluezQt::DevicePtr device)
 
     if (device->isConnected())
     {
-        connectDevice(device);
+        connectDevice(device.get());
         emitDeviceConnected(BluezQtHostInfo(device.data()));
     }
 
@@ -109,11 +109,12 @@ void KU_Bluez_PluginConnector::setupDevice(BluezQt::DevicePtr device)
             this->logDeviceInfos(device);
             if (connected)
             {
-                connectDevice(BluezQt::DevicePtr(device));
+                connectDevice(device);
                 emitDeviceConnected(BluezQtHostInfo(device));
             }
             else
             {
+                disconnectDevice(device);
                 emitDeviceDisconnected(BluezQtHostInfo(device));
             }
         }
@@ -131,14 +132,20 @@ void KU_Bluez_PluginConnector::setupDevice(BluezQt::DevicePtr device)
     });
 }
 
-void KU_Bluez_PluginConnector::connectDevice(BluezQt::DevicePtr device)
+void KU_Bluez_PluginConnector::connectDevice(BluezQt::Device* device)
 {
-    this->device = device;
-    this->device->setTrusted(true)->waitForFinished();
-    connectMediaPlayer(this->device->mediaPlayer());
-    connect(this->device.data(), &BluezQt::Device::mediaPlayerChanged, this, [=](BluezQt::MediaPlayerPtr mediaPlayer) {
+    this->connectedDevice = device;
+    device->setTrusted(true)->waitForFinished();
+    connectMediaPlayer(device->mediaPlayer());
+    connect(device, &BluezQt::Device::mediaPlayerChanged, this, [=](BluezQt::MediaPlayerPtr mediaPlayer) {
         connectMediaPlayer(mediaPlayer);
     });
+}
+
+void KU_Bluez_PluginConnector::disconnectDevice(BluezQt::Device* device)
+{
+    this->connectedDevice = nullptr;
+    this->adapter->removeDevice(device->toSharedPtr());
 }
 
 void KU_Bluez_PluginConnector::connectMediaPlayer(BluezQt::MediaPlayerPtr mediaPlayer)
@@ -251,70 +258,70 @@ void KU_Bluez_PluginConnector::pluginSlot(QString const& signal, QVariantMap con
 
 void KU_Bluez_PluginConnector::mediaPreviousSlot()
 {
-    if (this->device == nullptr)
+    if (this->connectedDevice == nullptr)
     {
         emitLogSignal(XB::Log("mediaPreviousSlot() No device"));
         return;
     }
 
-    if (this->device->mediaPlayer() == nullptr)
+    if (this->connectedDevice->mediaPlayer() == nullptr)
     {
         emitLogSignal(XB::Log("mediaPreviousSlot() No media player"));
         return;
     }
 
-    this->device->mediaPlayer()->previous();
+    this->connectedDevice->mediaPlayer()->previous();
 }
 
 void KU_Bluez_PluginConnector::mediaNextSlot()
 {
-    if (this->device == nullptr)
+    if (this->connectedDevice == nullptr)
     {
         emitLogSignal(XB::Log("mediaNextSlot() No device"));
         return;
     }
 
-    if (this->device->mediaPlayer() == nullptr)
+    if (this->connectedDevice->mediaPlayer() == nullptr)
     {
         emitLogSignal(XB::Log("mediaNextSlot() No media player"));
         return;
     }
 
-    this->device->mediaPlayer()->next();
+    this->connectedDevice->mediaPlayer()->next();
 }
 
 void KU_Bluez_PluginConnector::mediaPlaySlot()
 {
-    if (this->device == nullptr)
+    if (this->connectedDevice == nullptr)
     {
         emitLogSignal(XB::Log("mediaPlaySlot() No device"));
         return;
     }
 
-    if (this->device->mediaPlayer() == nullptr)
+    if (this->connectedDevice->mediaPlayer() == nullptr)
     {
         emitLogSignal(XB::Log("mediaPlaySlot() No media player"));
         return;
     }
 
-    this->device->mediaPlayer()->play();
+    this->connectedDevice->mediaPlayer()->play();
 }
 
 void KU_Bluez_PluginConnector::mediaPauseSlot()
 {
-    if (this->device == nullptr)
+    if (this->connectedDevice == nullptr)
     {
         emitLogSignal(XB::Log("mediaPauseSlot() No device"));
         return;
     }
 
-    if (this->device->mediaPlayer() == nullptr)
+    if (this->connectedDevice->mediaPlayer() == nullptr)
     {
         emitLogSignal(XB::Log("mediaPauseSlot() No media player"));
         return;
     }
 
-    this->device->mediaPlayer()->pause();
+    this->connectedDevice->mediaPlayer()->pause();
 }
 
 void KU_Bluez_PluginConnector::emitDeviceConnected(const DeviceInfo& info)
