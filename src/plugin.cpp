@@ -45,7 +45,7 @@ bool KU_Bluez_Plugin::loadSettings()
     return true;
 }
 
-bool KU_Bluez_Plugin::saveSettings() const
+bool KU_Bluez_Plugin::saveSettings()
 {
     return KU::Settings::instance()->status() == QSettings::NoError;
 }
