@@ -57,10 +57,25 @@ void KU_Bluez_PluginConnector::setup()
     });
 }
 
-void KU_Bluez_PluginConnector::scan()
+void KU_Bluez_PluginConnector::startScanning()
 {
     if (this->adapter)
+    {
+        this->discovering = true;
+        this->adapter->setDiscoverableTimeout(10000)->waitForFinished();
         this->adapter->startDiscovery()->waitForFinished();
+        emit discoveringChanged();
+    }
+}
+
+void KU_Bluez_PluginConnector::stopScanning()
+{
+    if (this->adapter)
+    {
+        this->discovering = false;
+        this->adapter->stopDiscovery()->waitForFinished();
+        emit discoveringChanged();
+    }
 }
 
 void KU_Bluez_PluginConnector::startAdapter(BluezQt::AdapterPtr adapter)
@@ -70,8 +85,6 @@ void KU_Bluez_PluginConnector::startAdapter(BluezQt::AdapterPtr adapter)
     adapter->setName("karunit")->waitForFinished();
     adapter->setPairable(true)->waitForFinished();
     adapter->setDiscoverable(true)->waitForFinished();
-    adapter->setDiscoverableTimeout(0)->waitForFinished();
-    adapter->startDiscovery()->waitForFinished();
 
     emitLogSignal("UUIDS: " + adapter->uuids().join(" + "));
 
@@ -397,7 +410,7 @@ void KU_Bluez_PluginConnector::emitStatusChanged(MediaStatus status)
     this->pluginDataSignal("statusChanged", data);
 }
 
-QVariantList KU_Bluez_PluginConnector::variantDevices()
+QVariantList KU_Bluez_PluginConnector::variantDevices() const
 {
     QVariantList list;
 
@@ -405,4 +418,9 @@ QVariantList KU_Bluez_PluginConnector::variantDevices()
         list.append(QVariant::fromValue(l));
 
     return list;
+}
+
+bool KU_Bluez_PluginConnector::isDiscovering() const
+{
+    return this->discovering;
 }

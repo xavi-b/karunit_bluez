@@ -16,6 +16,10 @@ Item {
         KUPBluezPluginConnector.disconnectFromDevice(deviceInfo)
     }
 
+    onVisibleChanged: {
+        KUPBluezPluginConnector.stopScanning()
+    }
+
     ListView {
         anchors.fill: parent
         id: listview
@@ -49,10 +53,13 @@ Item {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.margins: 5
-            icon.name: "view-refresh"
+            icon.name: KUPBluezPluginConnector.discovering ? "process-stop" : "view-refresh"
             icon.color: "transparent"
             onClicked: {
-                KUPBluezPluginConnector.scan()
+                if (KUPBluezPluginConnector.discovering)
+                    KUPBluezPluginConnector.stopScanning()
+                else
+                    KUPBluezPluginConnector.startScanning()
             }
         }
     }

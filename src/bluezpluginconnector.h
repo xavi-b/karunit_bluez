@@ -44,12 +44,14 @@ class KU_Bluez_PluginConnector : public KU::PLUGIN::PluginConnector
     Q_OBJECT
 
     Q_PROPERTY(QVariantList devices READ variantDevices NOTIFY devicesChanged)
+    Q_PROPERTY(bool discovering READ isDiscovering NOTIFY discoveringChanged)
 
 public:
     KU_Bluez_PluginConnector(QObject* parent = nullptr);
     void setup();
 
-    Q_INVOKABLE void scan();
+    Q_INVOKABLE void startScanning();
+    Q_INVOKABLE void stopScanning();
     Q_INVOKABLE void connectToDevice(DeviceInfo const& info);
     Q_INVOKABLE void disconnectFromDevice(DeviceInfo const& info);
 
@@ -69,16 +71,19 @@ public:
     void emitShuffleChanged(MediaShuffle shuffle);
     void emitStatusChanged(MediaStatus status);
 
-    QVariantList variantDevices();
+    QVariantList variantDevices() const;
+    bool isDiscovering() const;
 
 signals:
     void devicesChanged();
+    void discoveringChanged();
 
 private:
     QList<DeviceInfo>   devices;
     BluezQt::Manager*   manager         = nullptr;
     BluezQt::AdapterPtr adapter         = nullptr;
     BluezQt::Device*    connectedDevice = nullptr;
+    bool                discovering     = false;
 
     void startAdapter(BluezQt::AdapterPtr adapter);
     void setupDevice(BluezQt::DevicePtr device);
