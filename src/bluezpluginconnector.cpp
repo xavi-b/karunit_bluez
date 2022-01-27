@@ -89,21 +89,21 @@ void KU_Bluez_PluginConnector::startAdapter(BluezQt::AdapterPtr adapter)
     emitLogSignal("UUIDS: " + adapter->uuids().join(" + "));
 
     for (auto& device : adapter->devices())
-    {
-        emitLogSignal("Device found: " + device->friendlyName() + " " +
-                      (device->isConnected() ? "Connected" : "Disconnected"));
         this->setupDevice(device);
-    }
 
     connect(adapter.data(), &BluezQt::Adapter::deviceAdded, this, [=](BluezQt::DevicePtr device) {
-        emitLogSignal("Device added: " + device->friendlyName() + " " +
-                      (device->isConnected() ? "Connected" : "Disconnected"));
         this->setupDevice(device);
     });
 }
 
 void KU_Bluez_PluginConnector::setupDevice(BluezQt::DevicePtr device)
 {
+    if (device->name().remove('-') == device->address().remove(':'))
+        return;
+
+    emitLogSignal("setupDevice: " + device->name() + " " + device->address() + " " +
+                      (device->isConnected() ? "Connected" : "Disconnected"));
+
     devices.append(BluezQtHostInfo(device.data()));
     emit devicesChanged();
 
